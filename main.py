@@ -122,7 +122,7 @@ if st.session_state.uploaded_image is not None:
                 Provide a structured and visually clear response.
                 """
 
-                model = genai.GenerativeModel("gemini-1.5-flash")
+                model = genai.GenerativeModel("gemini-2.0-flash")
                 response = model.generate_content([
                     prompt,
                     {"mime_type": "image/png", "data": img_bytes}
@@ -153,4 +153,5 @@ st.markdown(
     """,
     unsafe_allow_html=True,
 )
+
 
