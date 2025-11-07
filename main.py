@@ -13,12 +13,11 @@ genai.configure(api_key=st.secrets["GOOGLE_API_KEY"])
 if "theme" not in st.session_state:
     st.session_state.theme = "dark"
 
-# Theme definitions
 def apply_theme(theme):
     if theme == "light":
-        bg = "#f6fff8"; text = "#1a202c"; card = "#ffffff"; accent = "#2f855a"; border = "#c6f6d5"
+        bg, text, card, accent, border = "#f6fff8", "#1a202c", "#ffffff", "#2f855a", "#c6f6d5"
     else:
-        bg = "#0b1220"; text = "#f0fff4"; card = "#132a13"; accent = "#38a169"; border = "#22543d"
+        bg, text, card, accent, border = "#0b1220", "#f0fff4", "#132a13", "#38a169", "#22543d"
     st.markdown(f"""
         <style>
         .stApp {{
@@ -42,7 +41,7 @@ def apply_theme(theme):
         </style>
     """, unsafe_allow_html=True)
 
-# Sidebar toggle
+# Sidebar theme switch
 with st.sidebar:
     st.markdown("### 🌗 Appearance")
     dark_toggle = st.toggle("Dark Mode", value=(st.session_state.theme == "dark"))
@@ -51,12 +50,13 @@ with st.sidebar:
 
 # ---------------- TITLE ----------------
 st.markdown(
-    f"""
+    """
     <div style='text-align:center; padding:1.5rem; border-radius:15px; background:rgba(56,178,172,0.1);'>
         <h1>🌿 AI-Based Plant Disease Identification System</h1>
-        <p>A camera in every hand can now protect every plant!!!...</p>
+        <p>A camera in every hand can now protect every plant!</p>
     </div>
-    """, unsafe_allow_html=True,
+    """,
+    unsafe_allow_html=True,
 )
 
 # ---------------- SESSION STATE ----------------
@@ -68,6 +68,8 @@ if "camera_active" not in st.session_state:
     st.session_state.camera_active = False
 if "uploader_key" not in st.session_state:
     st.session_state.uploader_key = 0
+if "reset_triggered" not in st.session_state:
+    st.session_state.reset_triggered = False
 
 # ---------------- IMAGE INPUT ----------------
 st.markdown("<div class='main-card'>", unsafe_allow_html=True)
@@ -143,15 +145,32 @@ if st.session_state.uploaded_image is not None:
 
 st.markdown("</div>", unsafe_allow_html=True)
 
+# ---------------- RESET FUNCTION ----------------
+def trigger_reset():
+    st.session_state.reset_triggered = True
+
+# Display Reset button
+st.markdown("<br>", unsafe_allow_html=True)
+st.markdown("<div style='text-align:center;'>", unsafe_allow_html=True)
+st.button("🔄 Reset", on_click=trigger_reset, type="primary")
+st.markdown("</div>", unsafe_allow_html=True)
+
+# Perform reset safely
+if st.session_state.reset_triggered:
+    time.sleep(0.2)
+    uploader_key = st.session_state.get("uploader_key", 0) + 1
+    for key in list(st.session_state.keys()):
+        del st.session_state[key]
+    st.session_state["uploader_key"] = uploader_key
+    st.rerun()
+
 # ---------------- FOOTER ----------------
 st.markdown(
     """
     <hr>
     <div style='text-align:center; opacity:0.8;'>
-        🌿 Built with ❤️ for Farmers | Powered by <b>Google Gemini AI</b>
+        🌿 Built with ❤️ for Farmers | Powered by Techbusters</b>
     </div>
     """,
     unsafe_allow_html=True,
 )
-
-
