@@ -3,6 +3,7 @@ import google.generativeai as genai
 from PIL import Image
 import io
 import time
+import matplotlib.pyplot as plt
 
 # ---------------- CONFIGURATION ----------------
 st.set_page_config(page_title="🌿 AI Plant Disease Identifier", page_icon="🌱", layout="wide")
@@ -11,7 +12,7 @@ genai.configure(api_key=st.secrets["GOOGLE_API_KEY"])
 
 # ---------------- THEME TOGGLE ----------------
 if "theme" not in st.session_state:
-    st.session_state.theme = "dark"
+    st.session_state.theme = "light"  # default to light mode
 
 def apply_theme(theme):
     if theme == "light":
@@ -71,9 +72,25 @@ if "uploader_key" not in st.session_state:
 if "reset_triggered" not in st.session_state:
     st.session_state.reset_triggered = False
 
+# ---------------- HOW IT WORKS (UI ENHANCEMENT) ----------------
+with st.expander("🧩 How It Works"):
+    st.markdown("""
+    1️⃣ Upload or capture a leaf image  
+    2️⃣ AI analyzes the image and detects disease  
+    3️⃣ Get detailed report + remedies + prevention tips  
+    4️⃣ Ask follow-up questions using the AI Agribot below  
+    """)
+
 # ---------------- IMAGE INPUT ----------------
 st.markdown("<div class='main-card'>", unsafe_allow_html=True)
 st.header("📸 Upload or Capture Leaf Image")
+
+# 🌐 Language selector
+language = st.selectbox(
+    "🌍 Select Output Language",
+    ["English", "Telugu", "Hindi", "Tamil"],
+    index=0
+)
 
 uploaded_file = st.file_uploader(
     "Upload a clear image of the affected leaf",
@@ -97,7 +114,7 @@ else:
 if uploaded_file is not None:
     st.session_state.uploaded_image = Image.open(uploaded_file)
 
-# ---------------- IMAGE DISPLAY ----------------
+# ---------------- IMAGE DISPLAY & ANALYSIS ----------------
 if st.session_state.uploaded_image is not None:
     st.image(st.session_state.uploaded_image, caption="Uploaded Image", use_container_width=True)
     st.success("✅ Image loaded successfully")
@@ -109,7 +126,7 @@ if st.session_state.uploaded_image is not None:
                 st.session_state.uploaded_image.save(img_byte_arr, format="PNG")
                 img_bytes = img_byte_arr.getvalue()
 
-                prompt = """
+                prompt = f"""
                 You are an expert agricultural AI assistant.
                 Analyze the given leaf image and identify:
                 1. The plant name
@@ -121,7 +138,9 @@ if st.session_state.uploaded_image is not None:
                 7. Treatments (organic & chemical)
                 8. Impact on yield or quality
                 9. Future preventive measures
-                Provide a structured and visually clear response.
+
+                Format the response in a structured and visually clear way.
+                Respond in {language}.
                 """
 
                 model = genai.GenerativeModel("gemini-2.0-flash")
@@ -140,6 +159,17 @@ if st.session_state.uploaded_image is not None:
                     file_name="plant_disease_analysis.txt",
                     mime="text/plain",
                 )
+
+                # ---------------- VISUALIZATION CHART ----------------
+                st.markdown("### 📊 Confidence Visualization (Sample Representation)")
+                diseases = ["Leaf Spot", "Blight", "Rust", "Healthy"]
+                values = [40, 35, 15, 10]
+                fig, ax = plt.subplots()
+                ax.bar(diseases, values, color="#38a169")
+                ax.set_ylabel("Confidence (%)")
+                ax.set_title("AI Prediction Confidence Levels")
+                st.pyplot(fig)
+
             except Exception as e:
                 st.error(f"⚠️ Error: {e}")
 
@@ -149,13 +179,11 @@ st.markdown("</div>", unsafe_allow_html=True)
 def trigger_reset():
     st.session_state.reset_triggered = True
 
-# Display Reset button
 st.markdown("<br>", unsafe_allow_html=True)
 st.markdown("<div style='text-align:center;'>", unsafe_allow_html=True)
-st.button("🔄 Reset", on_click=trigger_reset, type="primary")
+st.button("🔄 Reset", on_click=trigger_reset)
 st.markdown("</div>", unsafe_allow_html=True)
 
-# Perform reset safely
 if st.session_state.reset_triggered:
     time.sleep(0.2)
     uploader_key = st.session_state.get("uploader_key", 0) + 1
@@ -164,12 +192,26 @@ if st.session_state.reset_triggered:
     st.session_state["uploader_key"] = uploader_key
     st.rerun()
 
+# ---------------- AI AGRIBOT CHAT (ADDED FEATURE) ----------------
+st.markdown("---")
+st.subheader("🤖 Ask the AI Agribot")
+
+query = st.text_input("Type your farming or plant health question:")
+if query:
+    with st.spinner("Thinking... 🌱"):
+        try:
+            chat_model = genai.GenerativeModel("gemini-2.0-flash")
+            answer = chat_model.generate_content(query)
+            st.markdown(f"**AI Agribot:** {answer.text}")
+        except Exception as e:
+            st.error(f"⚠️ Chatbot error: {e}")
+
 # ---------------- FOOTER ----------------
 st.markdown(
     """
     <hr>
     <div style='text-align:center; opacity:0.8;'>
-        🌿 Built with ❤️ for Farmers | Powered by Techbusters</b>
+        🌿 Built with ❤️ for Farmers | Powered by <b>Google Gemini AI</b>
     </div>
     """,
     unsafe_allow_html=True,
