@@ -1,4 +1,3 @@
-
 import streamlit as st
 import google.generativeai as genai
 from PIL import Image
@@ -6,16 +5,58 @@ import io
 import time
 
 # ---------------- CONFIGURATION ----------------
-st.set_page_config(page_title="AI Plant Disease Identifier", page_icon="🌿")
+st.set_page_config(page_title="🌿 AI Plant Disease Identifier", page_icon="🌱", layout="wide")
 
-# Configure Gemini API key securely
 genai.configure(api_key=st.secrets["GOOGLE_API_KEY"])
 
+# ---------------- THEME TOGGLE ----------------
+if "theme" not in st.session_state:
+    st.session_state.theme = "dark"
+
+# Theme definitions
+def apply_theme(theme):
+    if theme == "light":
+        bg = "#f6fff8"; text = "#1a202c"; card = "#ffffff"; accent = "#2f855a"; border = "#c6f6d5"
+    else:
+        bg = "#0b1220"; text = "#f0fff4"; card = "#132a13"; accent = "#38a169"; border = "#22543d"
+    st.markdown(f"""
+        <style>
+        .stApp {{
+            background-color: {bg};
+            color: {text};
+        }}
+        .main-card {{
+            background: {card};
+            padding: 2rem;
+            border-radius: 20px;
+            border: 1px solid {border};
+            box-shadow: 0px 8px 24px rgba(0,0,0,0.15);
+        }}
+        .btn-primary button {{
+            background: {accent} !important;
+            color: white !important;
+            border: none !important;
+            font-weight: bold !important;
+        }}
+        h1, h2, h3, h4 {{ color: {accent}; }}
+        </style>
+    """, unsafe_allow_html=True)
+
+# Sidebar toggle
+with st.sidebar:
+    st.markdown("### 🌗 Appearance")
+    dark_toggle = st.toggle("Dark Mode", value=(st.session_state.theme == "dark"))
+    st.session_state.theme = "dark" if dark_toggle else "light"
+    apply_theme(st.session_state.theme)
+
 # ---------------- TITLE ----------------
-st.title("🌿 AI-Based Plant Disease Identification System")
 st.markdown(
-    "Upload or capture a leaf image to detect the plant disease, get remedies, "
-    "precautions, and analysis."
+    f"""
+    <div style='text-align:center; padding:1.5rem; border-radius:15px; background:rgba(56,178,172,0.1);'>
+        <h1>🌿 AI-Based Plant Disease Identification System</h1>
+        <p>Upload or capture a leaf image to detect plant diseases, get remedies & analysis instantly!</p>
+    </div>
+    """, unsafe_allow_html=True,
 )
 
 # ---------------- SESSION STATE ----------------
@@ -25,125 +66,90 @@ if "analysis_result" not in st.session_state:
     st.session_state.analysis_result = ""
 if "camera_active" not in st.session_state:
     st.session_state.camera_active = False
-if "reset_triggered" not in st.session_state:
-    st.session_state.reset_triggered = False
 if "uploader_key" not in st.session_state:
-    st.session_state.uploader_key = 0  # for forcing uploader refresh
+    st.session_state.uploader_key = 0
 
-# ---------------- IMAGE INPUT SECTION ----------------
+# ---------------- IMAGE INPUT ----------------
+st.markdown("<div class='main-card'>", unsafe_allow_html=True)
 st.header("📸 Upload or Capture Leaf Image")
 
-# Upload file with dynamic key
 uploaded_file = st.file_uploader(
     "Upload a clear image of the affected leaf",
     type=["jpg", "jpeg", "png"],
     key=f"uploader_{st.session_state.uploader_key}",
 )
 
-# Camera toggle
 if st.button("📷 Take Photo"):
     st.session_state.camera_active = not st.session_state.camera_active
 
-# Show camera when active
 if st.session_state.camera_active:
     st.info("Click the **round capture button** below to take a photo.")
     camera_input = st.camera_input("Capture image here")
     if camera_input is not None:
-        # Clear previous uploaded file when using camera
         uploaded_file = None
         st.session_state.uploaded_image = Image.open(camera_input)
-        st.session_state.camera_active = False  # Auto close camera
+        st.session_state.camera_active = False
 else:
     camera_input = None
 
-# Handle uploaded file (if not using camera)
 if uploaded_file is not None:
     st.session_state.uploaded_image = Image.open(uploaded_file)
 
 # ---------------- IMAGE DISPLAY ----------------
 if st.session_state.uploaded_image is not None:
-    st.image(st.session_state.uploaded_image, caption="Uploaded Image", use_column_width=True)
+    st.image(st.session_state.uploaded_image, caption="Uploaded Image", use_container_width=True)
     st.success("✅ Image loaded successfully")
 
-    # ---------------- ANALYSIS BUTTON ----------------
-    if st.button("🔍 Identify Disease & Get Analysis"):
+    if st.button("🔍 Identify Disease & Get Analysis", key="analyze_btn"):
         with st.spinner("Analyzing the leaf... Please wait ⏳"):
             try:
-                # Convert image to bytes
                 img_byte_arr = io.BytesIO()
                 st.session_state.uploaded_image.save(img_byte_arr, format="PNG")
                 img_bytes = img_byte_arr.getvalue()
 
-                # AI prompt
                 prompt = """
-You are an expert agricultural AI assistant.
-Analyze the given leaf image and identify:
-1. The plant name (based on image observation)
-2. Disease Name
-3. Cause/Pathogen
-4. Symptoms
-5. Severity Level (Low/Medium/High)
-6. Precautions to prevent it
-7. Treatment methods (organic and chemical)
-8. Impact on crop yield or quality
-9. Future preventive measures
+                You are an expert agricultural AI assistant.
+                Analyze the given leaf image and identify:
+                1. The plant name
+                2. Disease Name
+                3. Cause/Pathogen
+                4. Symptoms
+                5. Severity Level (Low/Medium/High)
+                6. Precautions
+                7. Treatments (organic & chemical)
+                8. Impact on yield or quality
+                9. Future preventive measures
+                Provide a structured and visually clear response.
+                """
 
-Format the response in a clear and structured way.
-"""
+                model = genai.GenerativeModel("gemini-1.5-flash")
+                response = model.generate_content([
+                    prompt,
+                    {"mime_type": "image/png", "data": img_bytes}
+                ])
 
-                # Use stable Gemini model
-                model = genai.GenerativeModel("gemini-2.0-flash")
-
-                # Retry mechanism for rate-limit issues
-                for attempt in range(3):
-                    try:
-                        response = model.generate_content([
-                            prompt,
-                            {"mime_type": "image/png", "data": img_bytes}
-                        ])
-                        break
-                    except Exception as e:
-                        if "429" in str(e):
-                            st.warning("⚠️ API rate limit reached. Retrying in 10 seconds...")
-                            time.sleep(10)
-                        else:
-                            raise e
-
-                # Store and display response
                 st.session_state.analysis_result = response.text
                 st.subheader("🌾 Disease Detection & Analysis Report")
-                st.markdown(st.session_state.analysis_result)
+                st.markdown(f"<div class='main-card'>{st.session_state.analysis_result}</div>", unsafe_allow_html=True)
 
-                # Download option
                 st.download_button(
                     label="📥 Download Report",
                     data=st.session_state.analysis_result,
                     file_name="plant_disease_analysis.txt",
                     mime="text/plain",
                 )
-
             except Exception as e:
                 st.error(f"⚠️ Error: {e}")
 
-# ---------------- RESET FUNCTION ----------------
-def trigger_reset():
-    st.session_state.reset_triggered = True
+st.markdown("</div>", unsafe_allow_html=True)
 
-st.button("🔄 Reset", on_click=trigger_reset)
-
-# Handle reset outside callback (safe rerun)
-if st.session_state.reset_triggered:
-    time.sleep(0.2)
-
-    # Preserve uploader key before clearing everything
-    uploader_key = st.session_state.get("uploader_key", 0) + 1
-
-    # Clear all session variables safely
-    for key in list(st.session_state.keys()):
-        del st.session_state[key]
-
-    # Restore updated uploader key
-    st.session_state["uploader_key"] = uploader_key
-
-    # Rerun cleanly
-    st.rerun()
+# ---------------- FOOTER ----------------
+st.markdown(
+    """
+    <hr>
+    <div style='text-align:center; opacity:0.8;'>
+        🌿 Built with ❤️ for Farmers | Powered by <b>Google Gemini AI</b>
+    </div>
+    """,
+    unsafe_allow_html=True,
+)
