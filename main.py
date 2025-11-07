@@ -3,7 +3,7 @@ import google.generativeai as genai
 from PIL import Image
 import io
 import time
-import matplotlib.pyplot as plt
+import pandas as pd  # Used only for chart data formatting
 
 # ---------------- CONFIGURATION ----------------
 st.set_page_config(page_title="🌿 AI Plant Disease Identifier", page_icon="🌱", layout="wide")
@@ -12,7 +12,7 @@ genai.configure(api_key=st.secrets["GOOGLE_API_KEY"])
 
 # ---------------- THEME TOGGLE ----------------
 if "theme" not in st.session_state:
-    st.session_state.theme = "light"  # default to light mode
+    st.session_state.theme = "light"  # Default light theme
 
 def apply_theme(theme):
     if theme == "light":
@@ -72,7 +72,7 @@ if "uploader_key" not in st.session_state:
 if "reset_triggered" not in st.session_state:
     st.session_state.reset_triggered = False
 
-# ---------------- HOW IT WORKS (UI ENHANCEMENT) ----------------
+# ---------------- HOW IT WORKS ----------------
 with st.expander("🧩 How It Works"):
     st.markdown("""
     1️⃣ Upload or capture a leaf image  
@@ -153,6 +153,7 @@ if st.session_state.uploaded_image is not None:
                 st.subheader("🌾 Disease Detection & Analysis Report")
                 st.markdown(f"<div class='main-card'>{st.session_state.analysis_result}</div>", unsafe_allow_html=True)
 
+                # 📥 Download Report
                 st.download_button(
                     label="📥 Download Report",
                     data=st.session_state.analysis_result,
@@ -160,15 +161,14 @@ if st.session_state.uploaded_image is not None:
                     mime="text/plain",
                 )
 
-                # ---------------- VISUALIZATION CHART ----------------
+                # 📊 VISUALIZATION DASHBOARD (Streamlit native chart)
                 st.markdown("### 📊 Confidence Visualization (Sample Representation)")
-                diseases = ["Leaf Spot", "Blight", "Rust", "Healthy"]
-                values = [40, 35, 15, 10]
-                fig, ax = plt.subplots()
-                ax.bar(diseases, values, color="#38a169")
-                ax.set_ylabel("Confidence (%)")
-                ax.set_title("AI Prediction Confidence Levels")
-                st.pyplot(fig)
+                data = pd.DataFrame({
+                    "Disease": ["Leaf Spot", "Blight", "Rust", "Healthy"],
+                    "Confidence (%)": [40, 35, 15, 10]
+                })
+                data = data.set_index("Disease")
+                st.bar_chart(data, height=250, color="#2f855a")
 
             except Exception as e:
                 st.error(f"⚠️ Error: {e}")
@@ -192,7 +192,7 @@ if st.session_state.reset_triggered:
     st.session_state["uploader_key"] = uploader_key
     st.rerun()
 
-# ---------------- AI AGRIBOT CHAT (ADDED FEATURE) ----------------
+# ---------------- AI AGRIBOT CHAT ----------------
 st.markdown("---")
 st.subheader("🤖 Ask the AI Agribot")
 
