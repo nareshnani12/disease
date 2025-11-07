@@ -54,7 +54,7 @@ st.markdown(
     f"""
     <div style='text-align:center; padding:1.5rem; border-radius:15px; background:rgba(56,178,172,0.1);'>
         <h1>🌿 AI-Based Plant Disease Identification System</h1>
-        <p>Upload or capture a leaf image to detect plant diseases, get remedies & analysis instantly!</p>
+        <p>A camera in every hand can now protect every plant!!!...</p>
     </div>
     """, unsafe_allow_html=True,
 )
@@ -153,3 +153,4 @@ st.markdown(
     """,
     unsafe_allow_html=True,
 )
+
