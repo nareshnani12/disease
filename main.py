@@ -3,11 +3,12 @@ import google.generativeai as genai
 from PIL import Image
 import io
 import time
-import pandas as pd  # Used only for chart data formatting
+import pandas as pd
+from gtts import gTTS
+import tempfile
 
 # ---------------- CONFIGURATION ----------------
 st.set_page_config(page_title="🌿 AI Plant Disease Identifier", page_icon="🌱", layout="wide")
-
 genai.configure(api_key=st.secrets["GOOGLE_API_KEY"])
 
 # ---------------- THEME TOGGLE ----------------
@@ -78,7 +79,8 @@ with st.expander("🧩 How It Works"):
     1️⃣ Upload or capture a leaf image  
     2️⃣ AI analyzes the image and detects disease  
     3️⃣ Get detailed report + remedies + prevention tips  
-    4️⃣ Ask follow-up questions using the AI Agribot below  
+    4️⃣ Listen to the voice summary 🎧  
+    5️⃣ Ask follow-up questions using the AI Agribot below  
     """)
 
 # ---------------- IMAGE INPUT ----------------
@@ -153,6 +155,19 @@ if st.session_state.uploaded_image is not None:
                 st.subheader("🌾 Disease Detection & Analysis Report")
                 st.markdown(f"<div class='main-card'>{st.session_state.analysis_result}</div>", unsafe_allow_html=True)
 
+                # 🎧 VOICE OUTPUT FEATURE
+                if st.session_state.analysis_result:
+                    with st.spinner("Generating voice output... 🎧"):
+                        try:
+                            lang_map = {"English": "en", "Telugu": "te", "Hindi": "hi", "Tamil": "ta"}
+                            tts = gTTS(text=st.session_state.analysis_result, lang=lang_map.get(language, "en"))
+                            temp_file = tempfile.NamedTemporaryFile(delete=False, suffix=".mp3")
+                            tts.save(temp_file.name)
+                            st.success("🔊 Voice output ready!")
+                            st.audio(temp_file.name, format="audio/mp3")
+                        except Exception as e:
+                            st.error(f"⚠️ Voice generation error: {e}")
+
                 # 📥 Download Report
                 st.download_button(
                     label="📥 Download Report",
@@ -161,7 +176,7 @@ if st.session_state.uploaded_image is not None:
                     mime="text/plain",
                 )
 
-                # 📊 VISUALIZATION DASHBOARD
+                # 📊 Visualization Dashboard
                 st.markdown("### 📊 Confidence Visualization (Sample Representation)")
                 data = pd.DataFrame({
                     "Disease": ["Leaf Spot", "Blight", "Rust", "Healthy"],
@@ -213,7 +228,7 @@ footer_html = """
 .footer {
     background: linear-gradient(135deg, #1f4037 0%, #99f2c8 100%);
     color: white;
-    padding: 3rem 2rem;
+    padding: 3rem 2rem 2rem 2rem;
     border-radius: 25px 25px 0 0;
     margin-top: 3rem;
     box-shadow: 0px -5px 25px rgba(0, 0, 0, 0.2);
@@ -251,14 +266,15 @@ footer_html = """
 }
 .footer-divider {
     width: 80%;
-    margin: 2rem auto;
+    margin: 2rem auto 1rem auto;
     border-top: 1px solid rgba(255, 255, 255, 0.4);
 }
 .footer-bottom {
     text-align: center;
     font-size: 15px;
-    opacity: 0.9;
-    padding-top: 1rem;
+    opacity: 0.95;
+    padding-top: 0.8rem;
+    font-weight: 500;
 }
 .footer-heart {
     color: #ff6b6b;
@@ -266,7 +282,7 @@ footer_html = """
 }
 @keyframes heartbeat {
     0%, 100% { transform: scale(1); }
-    50% { transform: scale(1.2); }
+    50% { transform: scale(1.3); }
 }
 </style>
 
@@ -296,9 +312,9 @@ footer_html = """
     <div class="footer-divider"></div>
 
     <div class="footer-bottom">
-        🌾 Built with <span class="footer-heart">❤️</span> for Farmers | © 2025 <b>Tech Busters</b> — All Rights Reserved.
+        🌾 <b>Built with</b> <span class="footer-heart">❤️</span> <b>for Farmers</b> | © 2025 <b>Tech Busters</b> — All Rights Reserved.
     </div>
 </div>
 """
 
-st.components.v1.html(footer_html, height=420)
+st.components.v1.html(footer_html, height=480)
