@@ -207,6 +207,7 @@ if query:
             st.error(f"⚠️ Chatbot error: {e}")
 
 # ---------------- PROFESSIONAL FOOTER ----------------
+
 footer_html = """
 <style>
 .footer {
@@ -275,4 +276,4 @@ footer_html = """
 </div>
 """
 
-st.markdown(footer_html, unsafe_allow_html=True)
+st.components.v1.html(footer_html, height=400)
