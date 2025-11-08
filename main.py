@@ -161,7 +161,7 @@ if st.session_state.uploaded_image is not None:
                     mime="text/plain",
                 )
 
-                # 📊 VISUALIZATION DASHBOARD (Streamlit native chart)
+                # 📊 VISUALIZATION DASHBOARD
                 st.markdown("### 📊 Confidence Visualization (Sample Representation)")
                 data = pd.DataFrame({
                     "Disease": ["Leaf Spot", "Blight", "Rust", "Healthy"],
@@ -206,12 +206,74 @@ if query:
         except Exception as e:
             st.error(f"⚠️ Chatbot error: {e}")
 
-# ---------------- FOOTER ----------------
+# ---------------- PROFESSIONAL FOOTER ----------------
 st.markdown(
     """
-    <hr>
-    <div style='text-align:center; opacity:0.8;'>
-        🌿 Built with ❤️ for Farmers | Powered by <b>Google Gemini AI</b>
+    <style>
+    .footer {
+        background: linear-gradient(135deg, #2f855a 0%, #276749 100%);
+        color: white;
+        padding: 3rem 2rem;
+        border-radius: 15px 15px 0 0;
+        margin-top: 3rem;
+    }
+    .footer h3 {
+        color: #c6f6d5;
+        margin-bottom: 0.5rem;
+    }
+    .footer p, .footer a {
+        color: #f0fff4;
+        text-decoration: none;
+        font-size: 15px;
+    }
+    .footer a:hover {
+        text-decoration: underline;
+        color: #c6f6d5;
+    }
+    .footer-container {
+        display: flex;
+        justify-content: space-around;
+        flex-wrap: wrap;
+        gap: 2rem;
+        text-align: left;
+    }
+    .footer-bottom {
+        text-align: center;
+        margin-top: 2rem;
+        border-top: 1px solid rgba(255,255,255,0.2);
+        padding-top: 1rem;
+        font-size: 14px;
+        opacity: 0.8;
+    }
+    </style>
+
+    <div class="footer">
+        <div class="footer-container">
+            
+            <div>
+                <h3>🌿 About Us</h3>
+                <p>
+                    We are <b>Tech Busters</b> — a passionate team focused on using AI to empower farmers 
+                    and protect crops through technology-driven solutions like plant disease detection systems.
+                </p>
+            </div>
+
+            <div>
+                <h3>📬 Contact Us</h3>
+                <p>Email: <a href="mailto:techbusters.ai@gmail.com">techbusters.ai@gmail.com</a></p>
+                <p>Phone: <a href="tel:+91XXXXXXXXXX">+91 XXXXX XXXXX</a></p>
+                <p>Website: <a href="#">www.techbusters.ai</a></p>
+                <p>Follow us on: 
+                    <a href="#">Instagram</a> | 
+                    <a href="#">LinkedIn</a> | 
+                    <a href="#">GitHub</a>
+                </p>
+            </div>
+
+        </div>
+        <div class="footer-bottom">
+            🌾 Built with ❤️ for Farmers | © 2025 <b>Tech Busters</b>. All rights reserved.
+        </div>
     </div>
     """,
     unsafe_allow_html=True,
