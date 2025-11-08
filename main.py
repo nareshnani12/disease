@@ -104,7 +104,7 @@ if st.button("📷 Take Photo"):
     st.session_state.camera_active = not st.session_state.camera_active
 
 if st.session_state.camera_active:
-    st.info("Click the **round capture button** below to take a photo.")
+    st.info("Click the *round capture button* below to take a photo.")
     camera_input = st.camera_input("Capture image here")
     if camera_input is not None:
         uploaded_file = None
@@ -155,7 +155,7 @@ if st.session_state.uploaded_image is not None:
                 st.subheader("🌾 Disease Detection & Analysis Report")
                 st.markdown(f"<div class='main-card'>{st.session_state.analysis_result}</div>", unsafe_allow_html=True)
 
-                # 🎧 Multilingual Voice Output
+                # 🎧 VOICE OUTPUT FEATURE (Multilingual)
                 if st.session_state.analysis_result:
                     with st.spinner("Generating voice output... 🎧"):
                         try:
@@ -172,7 +172,7 @@ if st.session_state.uploaded_image is not None:
                             st.success(f"🔊 Voice output generated in {language}!")
                             st.audio(temp_file.name, format="audio/mp3")
                         except Exception as e:
-                            st.error(f"⚠️ Voice generation error: {e}")
+                            st.error(f"⚠ Voice generation error: {e}")
 
                 # 📥 Download Report
                 st.download_button(
@@ -192,7 +192,7 @@ if st.session_state.uploaded_image is not None:
                 st.bar_chart(data, height=250, color="#2f855a")
 
             except Exception as e:
-                st.error(f"⚠️ Error: {e}")
+                st.error(f"⚠ Error: {e}")
 
 st.markdown("</div>", unsafe_allow_html=True)
 
@@ -217,32 +217,15 @@ if st.session_state.reset_triggered:
 st.markdown("---")
 st.subheader("🤖 Ask the AI Agribot")
 
-# Initialize chatbot session state
-if "chat_input" not in st.session_state:
-    st.session_state.chat_input = ""
-
-# Input box bound to session state
-query = st.text_input(
-    "Type your farming or plant health question:",
-    key="chat_input",
-    value=st.session_state.chat_input,
-)
-
-# Handle chatbot logic
+query = st.text_input("Type your farming or plant health question:")
 if query:
     with st.spinner("Thinking... 🌱"):
         try:
             chat_model = genai.GenerativeModel("gemini-2.0-flash")
             answer = chat_model.generate_content(query)
-
-            st.markdown(f"**AI Agribot:** {answer.text}")
-
-            # 🧹 Clear input field after response
-            st.session_state.chat_input = ""
-            st.experimental_rerun()
-
+            st.markdown(f"*AI Agribot:* {answer.text}")
         except Exception as e:
-            st.error(f"⚠️ Chatbot error: {e}")
+            st.error(f"⚠ Chatbot error: {e}")
 
 # ---------------- ENHANCED PROFESSIONAL FOOTER ----------------
 
@@ -335,7 +318,7 @@ footer_html = """
     <div class="footer-divider"></div>
 
     <div class="footer-bottom">
-        🌾 <b>Built with</b> <span class="footer-heart">❤️</span> <b>for Farmers</b> | © 2025 <b>Tech Busters</b> — All Rights Reserved.
+        🌾 <b>Built with</b> <span class="footer-heart">❤</span> <b>for Farmers</b> | © 2025 <b>Tech Busters</b> — All Rights Reserved.
     </div>
 </div>
 """
