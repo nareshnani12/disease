@@ -79,7 +79,7 @@ with st.expander("🧩 How It Works"):
     1️⃣ Upload or capture a leaf image  
     2️⃣ AI analyzes the image and detects disease  
     3️⃣ Get detailed report + remedies + prevention tips  
-    4️⃣ Listen to the voice summary 🎧  
+    4️⃣ Listen to the voice summary in your selected language 🎧  
     5️⃣ Ask follow-up questions using the AI Agribot below  
     """)
 
@@ -155,15 +155,21 @@ if st.session_state.uploaded_image is not None:
                 st.subheader("🌾 Disease Detection & Analysis Report")
                 st.markdown(f"<div class='main-card'>{st.session_state.analysis_result}</div>", unsafe_allow_html=True)
 
-                # 🎧 VOICE OUTPUT FEATURE
+                # 🎧 VOICE OUTPUT FEATURE (Multilingual)
                 if st.session_state.analysis_result:
                     with st.spinner("Generating voice output... 🎧"):
                         try:
-                            lang_map = {"English": "en", "Telugu": "te", "Hindi": "hi", "Tamil": "ta"}
-                            tts = gTTS(text=st.session_state.analysis_result, lang=lang_map.get(language, "en"))
+                            lang_map = {
+                                "English": "en",
+                                "Telugu": "te",
+                                "Hindi": "hi",
+                                "Tamil": "ta"
+                            }
+                            selected_lang = lang_map.get(language, "en")
+                            tts = gTTS(text=st.session_state.analysis_result, lang=selected_lang)
                             temp_file = tempfile.NamedTemporaryFile(delete=False, suffix=".mp3")
                             tts.save(temp_file.name)
-                            st.success("🔊 Voice output ready!")
+                            st.success(f"🔊 Voice output generated in {language}!")
                             st.audio(temp_file.name, format="audio/mp3")
                         except Exception as e:
                             st.error(f"⚠️ Voice generation error: {e}")
