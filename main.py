@@ -206,44 +206,67 @@ if query:
         except Exception as e:
             st.error(f"⚠️ Chatbot error: {e}")
 
-# ---------------- PROFESSIONAL FOOTER ----------------
+# ---------------- ENHANCED PROFESSIONAL FOOTER ----------------
 
 footer_html = """
 <style>
 .footer {
-    background: linear-gradient(135deg, #2f855a 0%, #276749 100%);
+    background: linear-gradient(135deg, #1f4037 0%, #99f2c8 100%);
     color: white;
     padding: 3rem 2rem;
-    border-radius: 15px 15px 0 0;
+    border-radius: 25px 25px 0 0;
     margin-top: 3rem;
+    box-shadow: 0px -5px 25px rgba(0, 0, 0, 0.2);
+    font-family: 'Segoe UI', sans-serif;
 }
 .footer h3 {
-    color: #c6f6d5;
+    color: #f6fff8;
+    font-weight: bold;
+    font-size: 20px;
     margin-bottom: 0.5rem;
+    text-shadow: 0 0 10px rgba(255,255,255,0.2);
 }
-.footer p, .footer a {
-    color: #f0fff4;
-    text-decoration: none;
+.footer p {
+    color: #e7f9ee;
     font-size: 15px;
+    line-height: 1.6;
+}
+.footer a {
+    color: #ffffff;
+    text-decoration: none;
+    transition: all 0.3s ease-in-out;
 }
 .footer a:hover {
-    text-decoration: underline;
-    color: #c6f6d5;
+    color: #1f4037;
+    background: #ffffff;
+    padding: 2px 6px;
+    border-radius: 5px;
 }
 .footer-container {
     display: flex;
-    justify-content: space-around;
+    justify-content: space-evenly;
     flex-wrap: wrap;
-    gap: 2rem;
+    gap: 3rem;
     text-align: left;
+}
+.footer-divider {
+    width: 80%;
+    margin: 2rem auto;
+    border-top: 1px solid rgba(255, 255, 255, 0.4);
 }
 .footer-bottom {
     text-align: center;
-    margin-top: 2rem;
-    border-top: 1px solid rgba(255,255,255,0.2);
+    font-size: 15px;
+    opacity: 0.9;
     padding-top: 1rem;
-    font-size: 14px;
-    opacity: 0.8;
+}
+.footer-heart {
+    color: #ff6b6b;
+    animation: heartbeat 1.5s infinite;
+}
+@keyframes heartbeat {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.2); }
 }
 </style>
 
@@ -252,8 +275,8 @@ footer_html = """
         <div>
             <h3>🌿 About Us</h3>
             <p>
-                We are <b>Tech Busters</b> — a passionate team focused on using AI to empower farmers 
-                and protect crops through technology-driven solutions like plant disease detection systems.
+                We are <b>Tech Busters</b> — a passionate team dedicated to using Artificial Intelligence 
+                to empower farmers, protect crops, and create sustainable agri-tech solutions for the future.
             </p>
         </div>
 
@@ -262,18 +285,20 @@ footer_html = """
             <p>Email: <a href="mailto:techbusters.ai@gmail.com">techbusters.ai@gmail.com</a></p>
             <p>Phone: <a href="tel:+91XXXXXXXXXX">+91 XXXXX XXXXX</a></p>
             <p>Website: <a href="#">www.techbusters.ai</a></p>
-            <p>Follow us on: 
-                <a href="#">Instagram</a> | 
-                <a href="#">LinkedIn</a> | 
+            <p>Follow us: 
+                <a href="#">Instagram</a> • 
+                <a href="#">LinkedIn</a> • 
                 <a href="#">GitHub</a>
             </p>
         </div>
     </div>
 
+    <div class="footer-divider"></div>
+
     <div class="footer-bottom">
-        🌾 Built with ❤️ for Farmers | © 2025 <b>Tech Busters</b>. All rights reserved.
+        🌾 Built with <span class="footer-heart">❤️</span> for Farmers | © 2025 <b>Tech Busters</b> — All Rights Reserved.
     </div>
 </div>
 """
 
-st.components.v1.html(footer_html, height=400)
+st.components.v1.html(footer_html, height=420)
